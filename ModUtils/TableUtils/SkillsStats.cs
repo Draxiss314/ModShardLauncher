@@ -165,9 +165,59 @@ public partial class Msl
         // Load table if it exists
         List<string> table = ThrowIfNull(ModLoader.GetTable(tableName));
         
-        // Prepare line
-        string newline = $"{id};{Object};{GetEnumMemberValue(Target)};{Range};{KD};{MP};{Reserv};{Duration};{AOE_Lenght};{AOE_Width};{(is_movement ? "1" : "0")};{Pattern};{GetEnumMemberValue(Validators)};{Class};{(Bonus_Range ? "1" : "0")};{Starcast};{GetEnumMemberValue(Branch)};{(is_knockback ? "1" : "0")};{(Crime ? "1" : "")};{GetEnumMemberValue(metacategory)};{FMB};{AP};{(Attack ? "1" : "")};{(Stance ? "1" : "")};{(Charge ? "1" : "")};{(Maneuver ? "1" : "")};{(Spell ? "1" : "")};";
+        // Get first line of table, defining all columns. 
+        string[] columnLine = table[0].Split(";");
+
+        // Insert vanilla attributes at their respective indices in the new line, as an array
+        string[] newlineArray = new string[columnLine.Length];
+        newlineArray[Array.IndexOf(columnLine, "Object")] = Object;
+        newlineArray[Array.IndexOf(columnLine, "Target")] = GetEnumMemberValue(Target);
+        newlineArray[Array.IndexOf(columnLine, "Range")] = Range;
+        newlineArray[Array.IndexOf(columnLine, "KD")] = KD;
+        newlineArray[Array.IndexOf(columnLine, "MP")] = MP;
+        newlineArray[Array.IndexOf(columnLine, "Reserv")] = Reserv;
+        newlineArray[Array.IndexOf(columnLine, "Duration")] = Duration;
+        newlineArray[Array.IndexOf(columnLine, "AOE_Lenght")] = AOE_Lenght;
+        newlineArray[Array.IndexOf(columnLine, "AOE_Width")] = AOE_Width;
+        newlineArray[Array.IndexOf(columnLine, "is_movement")] = is_movement;
+        newlineArray[Array.IndexOf(columnLine, "Pattern")] = GetEnumMemberValue(Pattern);
+        newlineArray[Array.IndexOf(columnLine, "Validators")] = GetEnumMemberValue(Validators);
+        newlineArray[Array.IndexOf(columnLine, "Class")] = GetEnumMemberValue(Class);
+        newlineArray[Array.IndexOf(columnLine, "Bonus_Range")] = Bonus_Range;
+        newlineArray[Array.IndexOf(columnLine, "Starcast")] = Starcast;
+        newlineArray[Array.IndexOf(columnLine, "Branch")] = GetEnumMemberValue(Branch);
+        newlineArray[Array.IndexOf(columnLine, "is_knockback")] = is_knockback;
+        newlineArray[Array.IndexOf(columnLine, "Crime")] = Crime;
+        newlineArray[Array.IndexOf(columnLine, "metacategory")] = GetEnumMemberValue(metacategory);
+        newlineArray[Array.IndexOf(columnLine, "FMB")] = FMB;
+        newlineArray[Array.IndexOf(columnLine, "AP")] = AP;
+        newlineArray[Array.IndexOf(columnLine, "Attack")] = Attack;
+        newlineArray[Array.IndexOf(columnLine, "Stance")] = Stance;
+        newlineArray[Array.IndexOf(columnLine, "Charge")] = Charge;
+        newlineArray[Array.IndexOf(columnLine, "Maneuver")] = Maneuver;
+        newlineArray[Array.IndexOf(columnLine, "Spell")] = Spell;
         
+        // If additional attributes are included, check to see if get they exist in the current table and add their indices. 
+        // We assume that any unused additional attributes are 'deactivated'; that the modder will have inserted all necessesary columns beforehand. 
+        // If your mod is dependent on another mod, you should still use InjectTableNewColumn to maintain load order agnosticism. Simply tell it not to overwrite positional values.
+        // This way, we never have to resize the newlineArray
+        if (additionalAttributes.Length > 0)
+        {
+            foreach(string key in columnLine)
+            {
+                if (additionalAttributes.ContainsKey(key))
+                {
+                    newlineArray[Array.IndexOf(columnLine, entry)] = additionalAttributes[entry]; // Worst-case scenario, redundant entries are overwritten. 
+                }
+            }
+        }
+
+        // // Prepare line
+        // string newline = $"{id};{Object};{GetEnumMemberValue(Target)};{Range};{KD};{MP};{Reserv};{Duration};{AOE_Lenght};{AOE_Width};{(is_movement ? "1" : "0")};{Pattern};{GetEnumMemberValue(Validators)};{Class};{(Bonus_Range ? "1" : "0")};{Starcast};{GetEnumMemberValue(Branch)};{(is_knockback ? "1" : "0")};{(Crime ? "1" : "")};{GetEnumMemberValue(metacategory)};{FMB};{AP};{(Attack ? "1" : "")};{(Stance ? "1" : "")};{(Charge ? "1" : "")};{(Maneuver ? "1" : "")};{(Spell ? "1" : "")};";
+
+        // Convert the new line to string form. 
+        string newline = String.Join(";", newlineArray);
+
         // Find Hook
         string hookStr = "// " + GetEnumMemberValue(hook);
         (int ind, string? foundLine) = table.Enumerate().FirstOrDefault(x => x.Item2.Contains(hookStr));
@@ -186,3 +236,48 @@ public partial class Msl
         }
     }
 }
+/*
+// Code used to generate newlineArray commands. I string used is the first line of gml_GlobalScript_table_skills_stats. 
+using System;
+
+namespace MyApplication
+{
+  class Program
+  {
+    static void Main(string[] args)
+    {
+    	string line = ";Object;Target;Range;KD;MP;Reserv;Duration;AOE_Lenght;AOE_Width;is_movement;Pattern;Validators;Class;Bonus_Range;Starcast;Branch;is_knockback;Crime;metacategory;FMB;AP;Attack;Stance;Charge;Maneuver;Spell;";
+        string[] columns = line.Split(";");
+        columns = Array.FindAll(columns, e => e != "");
+        string[] dictcolumns = new string[columns.Length];
+        string[] addIndexCommands = new string[columns.Length];
+        // newlineArray[Array.IndexOf(columnLine,"name")] = name;
+        string[] singleCommands = new string[columns.Length];
+        for (int i = 0; i < columns.Length; i++)
+        {
+            if (columns[i].Length > 0)
+            {
+                dictcolumns[i] = "{\""+ columns[i] + "\", Array.IndexOf(columnLine,\"" + columns[i] + "\")}";
+                if (columns[i] == "Target" || columns[i] == "Pattern" || columns[i] == "Validators" ||  columns[i] == "Class" || columns[i] == "Branch" || columns[i] == "metacategory")
+                {
+                    singleCommands[i] = "        newlineArray[Array.IndexOf(columnLine, \"" + columns[i] + "\")] = GetEnumMemberValue(" + columns[i] + ");";
+                    addIndexCommands[i] = "newlineArray[indices[\"" + columns[i] + "\"]] = GetEnumMemberValue(" + columns[i] + ");";
+                }
+                else
+                {
+                    singleCommands[i] = "        newlineArray[Array.IndexOf(columnLine, \"" + columns[i] + "\")] = " + columns[i] + ";";
+                    addIndexCommands[i] = "newlineArray[indices[\"" + columns[i] + "\"]] = " + columns[i] + ";";
+                }
+            }
+        }
+        
+        string newline1 = String.Join(",", dictcolumns);
+        string newline2 = String.Join("\n", addIndexCommands);
+        string newline3 = String.Join("\n", singleCommands);
+
+        // Console.WriteLine(newline1);
+        // Console.WriteLine(newline2);
+        Console.WriteLine(newline3);
+    }
+  }
+}*/

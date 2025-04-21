@@ -236,21 +236,220 @@ public partial class Msl
         bool canDisarm = false,
         bool canSwim = false,
         byte Swimming_Cost = 1,
-        byte? achievement = null
+        byte? achievement = null,
+        Dictionary<string, string> additionalAttributes = new Dictionary<string, string>()
         )
     {
+        // Aliasing "tier" so that it's got the correct capitalization. 
+        MobsStatsTier Tier = tier;
+
         // Table filename
         const string tableName = "gml_GlobalScript_table_mobs_stats";
         
         // Load table if it exists
         List<string> table = ThrowIfNull(ModLoader.GetTable(tableName));
+
+        // Get first line of table, defining all columns. 
+        string[] columnLine = table[0].Split(";");
+
+        // Insert vanilla attributes at their respective indices in the new line, as an array
+        string[] newlineArray = new string[columnLine.Length];
+        newlineArray[Array.IndexOf(columnLine, "name")] = name;
+        newlineArray[Array.IndexOf(columnLine, "Tier")] = GetEnumMemberValue(Tier);
+        newlineArray[Array.IndexOf(columnLine, "ID")] = ID;
+        newlineArray[Array.IndexOf(columnLine, "type")] = GetEnumMemberValue(type);
+        newlineArray[Array.IndexOf(columnLine, "faction")] = GetEnumMemberValue(faction);
+        newlineArray[Array.IndexOf(columnLine, "pattern")] = GetEnumMemberValue(pattern);
+        newlineArray[Array.IndexOf(columnLine, "category1")] = GetEnumMemberValue(category1);
+        newlineArray[Array.IndexOf(columnLine, "category2")] = GetEnumMemberValue(category2);
+        newlineArray[Array.IndexOf(columnLine, "weapon")] = GetEnumMemberValue(weapon);
+        newlineArray[Array.IndexOf(columnLine, "armor")] = GetEnumMemberValue(armor);
+        newlineArray[Array.IndexOf(columnLine, "size")] = GetEnumMemberValue(size);
+        newlineArray[Array.IndexOf(columnLine, "matter")] = GetEnumMemberValue(matter);
+        newlineArray[Array.IndexOf(columnLine, "VIS")] = VIS;
+        newlineArray[Array.IndexOf(columnLine, "XP")] = XP;
+        newlineArray[Array.IndexOf(columnLine, "HP")] = HP;
+        newlineArray[Array.IndexOf(columnLine, "MP")] = MP;
+        newlineArray[Array.IndexOf(columnLine, "Head_DEF")] = Head_DEF;
+        newlineArray[Array.IndexOf(columnLine, "Body_DEF")] = Body_DEF;
+        newlineArray[Array.IndexOf(columnLine, "Arms_DEF")] = Arms_DEF;
+        newlineArray[Array.IndexOf(columnLine, "Legs_DEF")] = Legs_DEF;
+        newlineArray[Array.IndexOf(columnLine, "Hit_Chance")] = Hit_Chance;
+        newlineArray[Array.IndexOf(columnLine, "EVS")] = EVS;
+        newlineArray[Array.IndexOf(columnLine, "PRR")] = PRR;
+        newlineArray[Array.IndexOf(columnLine, "Block_Power")] = Block_Power;
+        newlineArray[Array.IndexOf(columnLine, "Block_Recovery")] = Block_Recovery;
+        newlineArray[Array.IndexOf(columnLine, "Crit_Avoid")] = Crit_Avoid;
+        newlineArray[Array.IndexOf(columnLine, "CRT")] = CRT;
+        newlineArray[Array.IndexOf(columnLine, "CRTD")] = CRTD;
+        newlineArray[Array.IndexOf(columnLine, "CTA")] = CTA;
+        newlineArray[Array.IndexOf(columnLine, "FMB")] = FMB;
+        newlineArray[Array.IndexOf(columnLine, "Magic_Power")] = Magic_Power;
+        newlineArray[Array.IndexOf(columnLine, "Miscast_Chance")] = Miscast_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Miracle_Chance")] = Miracle_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Miracle_Power")] = Miracle_Power;
+        newlineArray[Array.IndexOf(columnLine, "MP_Restoration")] = MP_Restoration;
+        newlineArray[Array.IndexOf(columnLine, "Cooldown_Reduction")] = Cooldown_Reduction;
+        newlineArray[Array.IndexOf(columnLine, "Fortitude")] = Fortitude;
+        newlineArray[Array.IndexOf(columnLine, "Health_Restoration")] = Health_Restoration;
+        newlineArray[Array.IndexOf(columnLine, "Healing_Received")] = Healing_Received;
+        newlineArray[Array.IndexOf(columnLine, "Lifesteal")] = Lifesteal;
+        newlineArray[Array.IndexOf(columnLine, "Manasteal")] = Manasteal;
+        newlineArray[Array.IndexOf(columnLine, "Bleeding_Resistance")] = Bleeding_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Knockback_Resistance")] = Knockback_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Stun_Resistance")] = Stun_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Pain_Resistance")] = Pain_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Bleeding_Chance")] = Bleeding_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Daze_Chance")] = Daze_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Stun_Chance")] = Stun_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Knockback_Chance")] = Knockback_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Immob_Chance")] = Immob_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Stagger_Chance")] = Stagger_Chance;
+        newlineArray[Array.IndexOf(columnLine, "STR k")] = STRk;
+        newlineArray[Array.IndexOf(columnLine, "AGL k")] = AGLk;
+        newlineArray[Array.IndexOf(columnLine, "Vitality k")] = Vitalityk;
+        newlineArray[Array.IndexOf(columnLine, "PRC k")] = PRCk;
+        newlineArray[Array.IndexOf(columnLine, "WIL k")] = WILk;
+        newlineArray[Array.IndexOf(columnLine, "Checksum")] = Checksum;
+        newlineArray[Array.IndexOf(columnLine, "STR")] = STR;
+        newlineArray[Array.IndexOf(columnLine, "AGL")] = AGL;
+        newlineArray[Array.IndexOf(columnLine, "Vitality")] = Vitality;
+        newlineArray[Array.IndexOf(columnLine, "PRC")] = PRC;
+        newlineArray[Array.IndexOf(columnLine, "WIL")] = WIL;
+        newlineArray[Array.IndexOf(columnLine, "Bonus_Range")] = Bonus_Range;
+        newlineArray[Array.IndexOf(columnLine, "Avoiding_Chance")] = Avoiding_Chance;
+        newlineArray[Array.IndexOf(columnLine, "Damage_Returned")] = Damage_Returned;
+        newlineArray[Array.IndexOf(columnLine, "Damage_Received")] = Damage_Received;
+        newlineArray[Array.IndexOf(columnLine, "Head")] = Head;
+        newlineArray[Array.IndexOf(columnLine, "Torso")] = Torso;
+        newlineArray[Array.IndexOf(columnLine, "Left_Leg")] = Left_Leg;
+        newlineArray[Array.IndexOf(columnLine, "Right_Leg")] = Right_Leg;
+        newlineArray[Array.IndexOf(columnLine, "Left_Hand")] = Left_Hand;
+        newlineArray[Array.IndexOf(columnLine, "Right_Hand")] = Right_Hand;
+        newlineArray[Array.IndexOf(columnLine, "IP")] = IP;
+        newlineArray[Array.IndexOf(columnLine, "Morale")] = Morale;
+        newlineArray[Array.IndexOf(columnLine, "Threat_Time")] = Threat_Time;
+        newlineArray[Array.IndexOf(columnLine, "Bodypart_Damage")] = Bodypart_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Armor_Piercing")] = Armor_Piercing;
+        newlineArray[Array.IndexOf(columnLine, "DMG Sum")] = DMG_Sum;
+        newlineArray[Array.IndexOf(columnLine, "Slashing_Damage")] = Slashing_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Piercing_Damage")] = Piercing_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Blunt_Damage")] = Blunt_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Rending_Damage")] = Rending_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Fire_Damage")] = Fire_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Shock_Damage")] = Shock_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Poison_Damage")] = Poison_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Caustic_Damage")] = Caustic_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Frost_Damage")] = Frost_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Arcane_Damage")] = Arcane_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Unholy_Damage")] = Unholy_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Sacred_Damage")] = Sacred_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Psionic_Damage")] = Psionic_Damage;
+        newlineArray[Array.IndexOf(columnLine, "Physical_Resistance")] = Physical_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Natural_Resistance")] = Natural_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Magical_Resistance")] = Magical_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Slashing_Resistance")] = Slashing_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Piercing_Resistance")] = Piercing_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Blunt_Resistance")] = Blunt_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Rending_Resistance")] = Rending_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Fire_Resistance")] = Fire_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Shock_Resistance")] = Shock_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Poison_Resistance")] = Poison_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Frost_Resistance")] = Frost_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Caustic_Resistance")] = Caustic_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Arcane_Resistance")] = Arcane_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Unholy_Resistance")] = Unholy_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Sacred_Resistance")] = Sacred_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "Psionic_Resistance")] = Psionic_Resistance;
+        newlineArray[Array.IndexOf(columnLine, "canBlock")] = canBlock;
+        newlineArray[Array.IndexOf(columnLine, "canDisarm")] = canDisarm;
+        newlineArray[Array.IndexOf(columnLine, "canSwim")] = canSwim;
+        newlineArray[Array.IndexOf(columnLine, "Swimming_Cost")] = Swimming_Cost;
+        newlineArray[Array.IndexOf(columnLine, "achievement")] = achievement;
+        newlineArray[Array.IndexOf(columnLine, "trophy")] = trophy;
+
+        // // Prepare line
+        // string newline = $"{name};{GetEnumMemberValue(tier)};{ID};{type};{faction};{pattern};;{GetEnumMemberValue(category1)};{GetEnumMemberValue(category2)};{GetEnumMemberValue(weapon)};{armor};{size};{matter};{VIS};;{XP};{HP};{MP};{Head_DEF};{Body_DEF};{Arms_DEF};{Legs_DEF};;{Hit_Chance};{EVS};{PRR};{Block_Power};{Block_Recovery};{Crit_Avoid};{CRT};{CRTD};{CTA};{FMB};;{Magic_Power};{Miscast_Chance};{Miracle_Chance};{Miracle_Power};;{MP_Restoration};{Cooldown_Reduction};{Fortitude};{Health_Restoration};{Healing_Received};{Lifesteal};{Manasteal};;{Bleeding_Resistance};{Knockback_Resistance};{Stun_Resistance};{Pain_Resistance};;{Bleeding_Chance};{Daze_Chance};{Stun_Chance};{Knockback_Chance};{Immob_Chance};{Stagger_Chance};;{STRk};{AGLk};{Vitalityk};{PRCk};{WILk};{Checksum};;{STR};{AGL};{Vitality};{PRC};{WIL};;{Bonus_Range};{Avoiding_Chance};{Damage_Returned};{Damage_Received};;{Head};{Torso};{Left_Leg};{Right_Leg};{Left_Hand};{Right_Hand};;{IP};{Morale};{Threat_Time};;{Bodypart_Damage};{Armor_Piercing};{DMG_Sum};{Slashing_Damage};{Piercing_Damage};{Blunt_Damage};{Rending_Damage};{Fire_Damage};{Shock_Damage};{Poison_Damage};{Caustic_Damage};{Frost_Damage};{Arcane_Damage};{Unholy_Damage};{Sacred_Damage};{Psionic_Damage};;{Physical_Resistance};{Natural_Resistance};{Magical_Resistance};;{Slashing_Resistance};{Piercing_Resistance};{Blunt_Resistance};{Rending_Resistance};{Fire_Resistance};{Shock_Resistance};{Poison_Resistance};{Frost_Resistance};{Caustic_Resistance};{Arcane_Resistance};{Unholy_Resistance};{Sacred_Resistance};{Psionic_Resistance};;{(canBlock ? "1": "")};{(canDisarm ? "1": "")};{(canSwim ? "1": "")};{Swimming_Cost};{achievement};";
         
-        // Prepare line
-        string newline = $"{name};{GetEnumMemberValue(tier)};{ID};{type};{faction};{pattern};;{GetEnumMemberValue(category1)};{GetEnumMemberValue(category2)};{GetEnumMemberValue(weapon)};{armor};{size};{matter};{VIS};;{XP};{HP};{MP};{Head_DEF};{Body_DEF};{Arms_DEF};{Legs_DEF};;{Hit_Chance};{EVS};{PRR};{Block_Power};{Block_Recovery};{Crit_Avoid};{CRT};{CRTD};{CTA};{FMB};;{Magic_Power};{Miscast_Chance};{Miracle_Chance};{Miracle_Power};;{MP_Restoration};{Cooldown_Reduction};{Fortitude};{Health_Restoration};{Healing_Received};{Lifesteal};{Manasteal};;{Bleeding_Resistance};{Knockback_Resistance};{Stun_Resistance};{Pain_Resistance};;{Bleeding_Chance};{Daze_Chance};{Stun_Chance};{Knockback_Chance};{Immob_Chance};{Stagger_Chance};;{STRk};{AGLk};{Vitalityk};{PRCk};{WILk};{Checksum};;{STR};{AGL};{Vitality};{PRC};{WIL};;{Bonus_Range};{Avoiding_Chance};{Damage_Returned};{Damage_Received};;{Head};{Torso};{Left_Leg};{Right_Leg};{Left_Hand};{Right_Hand};;{IP};{Morale};{Threat_Time};;{Bodypart_Damage};{Armor_Piercing};{DMG_Sum};{Slashing_Damage};{Piercing_Damage};{Blunt_Damage};{Rending_Damage};{Fire_Damage};{Shock_Damage};{Poison_Damage};{Caustic_Damage};{Frost_Damage};{Arcane_Damage};{Unholy_Damage};{Sacred_Damage};{Psionic_Damage};;{Physical_Resistance};{Natural_Resistance};{Magical_Resistance};;{Slashing_Resistance};{Piercing_Resistance};{Blunt_Resistance};{Rending_Resistance};{Fire_Resistance};{Shock_Resistance};{Poison_Resistance};{Frost_Resistance};{Caustic_Resistance};{Arcane_Resistance};{Unholy_Resistance};{Sacred_Resistance};{Psionic_Resistance};;{(canBlock ? "1": "")};{(canDisarm ? "1": "")};{(canSwim ? "1": "")};{Swimming_Cost};{achievement};";
-        
+        // If additional attributes are included, check to see if get they exist in the current table and add their indices. 
+        // We assume that any unused additional attributes are 'deactivated'; that the modder will have inserted all necessesary columns beforehand. 
+        // If your mod is dependent on another mod, you should still use InjectTableNewColumn to maintain load order agnosticism. Simply tell it not to overwrite positional values.
+        // This way, we never have to resize the newlineArray
+        if (additionalAttributes.Length > 0)
+        {
+            foreach(string key in columnLine)
+            {
+                if (additionalAttributes.ContainsKey(key))
+                {
+                    newlineArray[Array.IndexOf(columnLine, entry)] = additionalAttributes[entry]; // Worst-case scenario, redundant entries are overwritten. 
+                }
+            }
+        }
+
         // Add line to table
         table.Add(newline);
         ModLoader.SetTable(table, tableName);
         Log.Information($"Injected Mob Stat {name} into table");
     }
 }
+/*
+// Code used to generate newlineArray commands. I string used is the first line of gml_GlobalScript_table_mobs_stats.
+// Caught an inconsistency in spelling of "tier" vs. "Tier". Added an alias in the code to maintain backwards-compatibility.
+using System;
+
+namespace MyApplication
+{
+  class Program
+  {
+    static void Main(string[] args)
+    {
+    	string line = "name;Tier;ID;type;faction;pattern;;category1;category2;weapon;armor;size;matter;VIS;;XP;HP;MP;Head_DEF;Body_DEF;Arms_DEF;Legs_DEF;;Hit_Chance;EVS;PRR;Block_Power;Block_Recovery;Crit_Avoid;CRT;CRTD;CTA;FMB;;Magic_Power;Miscast_Chance;Miracle_Chance;Miracle_Power;;MP_Restoration;Cooldown_Reduction;Fortitude;Health_Restoration;Healing_Received;Lifesteal;Manasteal;;Bleeding_Resistance;Knockback_Resistance;Stun_Resistance;Pain_Resistance;;Bleeding_Chance;Daze_Chance;Stun_Chance;Knockback_Chance;Immob_Chance;Stagger_Chance;;STR k;AGL k;Vitality k;PRC k;WIL k;Checksum;;STR;AGL;Vitality;PRC;WIL;;Bonus_Range;Avoiding_Chance;Damage_Returned;Damage_Received;;Head;Torso;Left_Leg;Right_Leg;Left_Hand;Right_Hand;;IP;Morale;Threat_Time;;Bodypart_Damage;Armor_Piercing;DMG Sum;Slashing_Damage;Piercing_Damage;Blunt_Damage;Rending_Damage;Fire_Damage;Shock_Damage;Poison_Damage;Caustic_Damage;Frost_Damage;Arcane_Damage;Unholy_Damage;Sacred_Damage;Psionic_Damage;;Physical_Resistance;Natural_Resistance;Magical_Resistance;;Slashing_Resistance;Piercing_Resistance;Blunt_Resistance;Rending_Resistance;Fire_Resistance;Shock_Resistance;Poison_Resistance;Frost_Resistance;Caustic_Resistance;Arcane_Resistance;Unholy_Resistance;Sacred_Resistance;Psionic_Resistance;;canBlock;canDisarm;canSwim;Swimming_Cost;achievement;trophy;";
+        string[] columns = line.Split(";");
+        columns = Array.FindAll(columns, e => e != "");
+        string[] dictcolumns = new string[columns.Length];
+        string[] addIndexCommands = new string[columns.Length];
+        // newlineArray[Array.IndexOf(columnLine,"name")] = name;
+        string[] singleCommands = new string[columns.Length];
+        for (int i = 0; i < columns.Length; i++)
+        {
+            if (columns[i].Length > 0)
+            {
+                dictcolumns[i] = "{\""+ columns[i] + "\", Array.IndexOf(columnLine,\"" + columns[i] + "\")}";
+                if (columns[i] == "Tier" || columns[i] == "type" || columns[i] == "faction" ||  columns[i] == "pattern" || columns[i] == "weapon" || columns[i] == "armor" || columns[i] == "size" || columns[i] == "matter" || columns[i] == "category1" || columns[i] == "category2")
+                {
+                    singleCommands[i] = "        newlineArray[Array.IndexOf(columnLine, \"" + columns[i] + "\")] = GetEnumMemberValue(" + columns[i] + ");";
+                    addIndexCommands[i] = "newlineArray[indices[\"" + columns[i] + "\"]] = GetEnumMemberValue(" + columns[i] + ");";
+                }
+                else if (columns[i] == "STR k" || columns[i] == "AGL k" || columns[i] == "Vitality k" || columns[i] == "PRC k" || columns[i] == "WIL k")
+                {
+                	singleCommands[i] = "        newlineArray[Array.IndexOf(columnLine, \"" + columns[i] + "\")] = " + columns[i].Replace(" ","") + ";";
+                    addIndexCommands[i] = "newlineArray[indices[\"" + columns[i] + "\"]] = " + columns[i].Replace(" ","") + ";";
+                }
+                else if (columns[i] == "DMG Sum")
+                {
+                	singleCommands[i] = "        newlineArray[Array.IndexOf(columnLine, \"" + columns[i] + "\")] = " + columns[i].Replace(" ","_") + ";";
+                    addIndexCommands[i] = "newlineArray[indices[\"" + columns[i] + "\"]] = " + columns[i].Replace(" ","_") + ";";
+                }
+                else if (columns[i] == "class")
+                {
+                    singleCommands[i] = "        newlineArray[Array.IndexOf(columnLine, \"" + columns[i] + "\")] = GetEnumMemberValue(Class);";
+                    addIndexCommands[i] = "newlineArray[indices[\"" + columns[i] + "\"]] = GetEnumMemberValue(Class));";
+                }
+                else
+                {
+                    singleCommands[i] = "        newlineArray[Array.IndexOf(columnLine, \"" + columns[i] + "\")] = " + columns[i] + ";";
+                    addIndexCommands[i] = "newlineArray[indices[\"" + columns[i] + "\"]] = " + columns[i] + ";";
+                }
+            }
+        }
+        
+        string newline1 = String.Join(",", dictcolumns);
+        string newline2 = String.Join("\n", addIndexCommands);
+        string newline3 = String.Join("\n", singleCommands);
+
+        // Console.WriteLine(newline1);
+        // Console.WriteLine(newline2);
+        Console.WriteLine(newline3);
+    }
+  }
+}*/
